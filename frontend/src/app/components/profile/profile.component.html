@@ -1,0 +1,115 @@
+<div class="profile-page fade-in">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h2>My Profile</h2>
+      <span class="page-subtitle">Manage your account and preferences</span>
+    </div>
+  </div>
+
+  <!-- Save Message Toast -->
+  <div class="toast-container" *ngIf="saveMessage">
+    <div class="toast" [ngClass]="saveError ? 'toast-error' : 'toast-success'">
+      <i class="fa-solid" [ngClass]="saveError ? 'fa-circle-xmark' : 'fa-circle-check'"></i>
+      {{ saveMessage }}
+    </div>
+  </div>
+
+  <div class="profile-grid">
+
+    <!-- Identity Card -->
+    <div class="saas-card identity-card">
+      <div class="avatar-large">{{ avatarLetter }}</div>
+
+      <div class="identity-info">
+        <div *ngIf="!isEditingName" class="display-name-row">
+          <h3 class="display-name">{{ displayName }}</h3>
+          <button class="btn-icon" (click)="isEditingName = true" title="Edit name">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+
+        <div *ngIf="isEditingName" class="edit-name-row">
+          <input
+            id="edit-name-input"
+            type="text"
+            [(ngModel)]="editName"
+            placeholder="Display name"
+            (keydown.enter)="saveName()"
+            (keydown.escape)="isEditingName = false"
+          />
+          <button class="btn btn-primary btn-sm" (click)="saveName()">Save</button>
+          <button class="btn btn-outline btn-sm" (click)="isEditingName = false">Cancel</button>
+        </div>
+
+        <p class="profile-email-display">
+          <i class="fa-regular fa-envelope"></i>
+          {{ currentUser?.email }}
+        </p>
+        <span class="badge badge-status" style="margin-top:0.5rem;">Student</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <button class="btn btn-outline logout-full-btn" id="profile-logout-btn" (click)="logout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        Sign Out
+      </button>
+    </div>
+
+    <!-- Preferences Card -->
+    <div class="saas-card preferences-card">
+      <h3 class="card-title">Preferences</h3>
+
+      <div class="form-group">
+        <label for="pref-theme">Theme</label>
+        <select id="pref-theme" [(ngModel)]="selectedTheme" (change)="onThemeChange()">
+          <option *ngFor="let t of themes" [value]="t.value">{{ t.label }}</option>
+        </select>
+        <small class="hint-text">Changes apply immediately</small>
+      </div>
+
+      <button class="btn btn-primary" id="save-prefs-btn" (click)="savePreferences()">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Preferences
+      </button>
+    </div>
+
+    <!-- Account Details Card -->
+    <div class="saas-card account-card">
+      <h3 class="card-title">Account Details</h3>
+
+      <div class="account-row">
+        <span class="account-key">Account Type</span>
+        <span class="account-val">Student – Free</span>
+      </div>
+      <div class="account-row">
+        <span class="account-key">Email</span>
+        <span class="account-val">{{ currentUser?.email }}</span>
+      </div>
+      <div class="account-row">
+        <span class="account-key">Member Since</span>
+        <span class="account-val">2026</span>
+      </div>
+      <div class="account-row">
+        <span class="account-key">Status</span>
+        <span class="account-val success-text">
+          <i class="fa-solid fa-circle" style="font-size:0.5rem; margin-right:0.35rem;"></i>
+          Active
+        </span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="danger-zone">
+        <h4 class="danger-title"><i class="fa-solid fa-shield-exclamation"></i> Danger Zone</h4>
+        <p class="danger-text">Permanently delete your account and all tasks. This cannot be undone.</p>
+        <button class="btn btn-outline btn-danger-outline" disabled>
+          Delete Account
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

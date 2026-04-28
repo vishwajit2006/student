@@ -1,0 +1,94 @@
+<div class="task-list" aria-live="polite" aria-label="Your task list">
+  <div *ngIf="tasks.length === 0" class="empty-state fade-in" role="status">
+    <div class="empty-icon" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></div>
+    <h3>No tasks here yet</h3>
+    <p>Click <strong>New Task</strong> to create your first task.</p>
+  </div>
+
+  <div
+    *ngFor="let task of tasks; trackBy: trackByTaskId"
+    class="task-card saas-card fade-in"
+    [class.completed]="task.status === 'completed'"
+    [class.overdue]="isOverdue(task)"
+    [attr.aria-label]="'Task: ' + task.title + ', ' + task.status + ', ' + task.priority + ' priority'"
+  >
+    <div class="task-content">
+      <div class="task-header">
+        <h4 [class.strike]="task.status === 'completed'">{{ task.title }}</h4>
+        <div class="task-badges">
+          <span class="badge" [ngClass]="getPriorityClass(task.priority)" [attr.aria-label]="'Priority: ' + task.priority">
+            {{ task.priority | titlecase }}
+          </span>
+          <span
+            class="badge badge-status"
+            [class.badge-completed]="task.status === 'completed'"
+            [attr.aria-label]="'Status: ' + task.status"
+          >
+            {{ task.status | titlecase }}
+          </span>
+          <span class="badge badge-overdue" *ngIf="isOverdue(task)" aria-label="Overdue">Overdue</span>
+        </div>
+      </div>
+
+      <p class="task-desc" *ngIf="task.description">{{ task.description }}</p>
+
+      <div class="task-footer">
+        <span class="due-date" [class.is-overdue]="isOverdue(task)">
+          <i class="fa-regular fa-calendar" aria-hidden="true"></i> Due: {{ task.dueDate | date:'mediumDate' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="task-actions" role="group" [attr.aria-label]="'Actions for ' + task.title">
+      <!-- Normal Actions -->
+      <ng-container *ngIf="confirmDeleteId !== task._id">
+        <button
+          class="btn-icon"
+          [class.btn-success]="task.status === 'pending'"
+          [class.btn-warning]="task.status === 'completed'"
+          (click)="onToggle(task)"
+          [attr.aria-label]="getToggleLabel(task)"
+          [title]="getToggleLabel(task)">
+          <i class="fa-solid" [ngClass]="task.status === 'pending' ? 'fa-check' : 'fa-rotate-left'" aria-hidden="true"></i>
+        </button>
+        <button
+          class="btn-icon"
+          (click)="onEdit(task)"
+          [attr.aria-label]="'Edit task: ' + task.title"
+          title="Edit task">
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </button>
+        <button
+          class="btn-icon btn-danger"
+          (click)="initiateDelete(task._id)"
+          [attr.aria-label]="'Delete task: ' + task.title"
+          title="Delete task">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        </button>
+      </ng-container>
+
+      <!-- Inline Delete Confirmation -->
+      <div
+        class="confirm-actions fade-in"
+        *ngIf="confirmDeleteId === task._id"
+        role="alertdialog"
+        [attr.aria-label]="'Confirm delete: ' + task.title">
+        <span class="confirm-text">Delete?</span>
+        <button
+          class="btn-icon btn-success"
+          (click)="confirmDelete(task._id)"
+          aria-label="Confirm delete"
+          title="Yes, delete">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+        </button>
+        <button
+          class="btn-icon"
+          (click)="cancelDelete()"
+          aria-label="Cancel delete"
+          title="Cancel">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,192 @@
+<div class="tasks-page fade-in">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h2>All Tasks</h2>
+      <span class="page-subtitle">{{ totalTasks }} tasks total</span>
+    </div>
+    <button class="btn btn-primary" id="new-task-btn" (click)="openModal()">
+      <i class="fa-solid fa-plus"></i>
+      New Task
+    </button>
+  </div>
+
+  <!-- Stats Strip -->
+  <div class="stats-strip">
+    <div class="stat-pill stat-total">
+      <span class="stat-num">{{ totalTasks }}</span>
+      <span class="stat-lbl">Total</span>
+    </div>
+    <div class="stat-pill stat-pending">
+      <span class="stat-num">{{ pendingTasks }}</span>
+      <span class="stat-lbl">Pending</span>
+    </div>
+    <div class="stat-pill stat-done">
+      <span class="stat-num">{{ completedTasks }}</span>
+      <span class="stat-lbl">Done</span>
+    </div>
+    <div class="stat-pill stat-overdue">
+      <span class="stat-num">{{ overdueTasks }}</span>
+      <span class="stat-lbl">Overdue</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar saas-card">
+    <div class="search-wrapper">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        id="tasks-search"
+        type="text"
+        class="search-input"
+        placeholder="Search tasks..."
+        [(ngModel)]="searchTerm"
+        (input)="searchService.setTerm(searchTerm)"
+        (keydown.escape)="searchTerm = ''; searchService.clearTerm()"
+      />
+    </div>
+    <div class="filter-group">
+      <select id="filter-status" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+      <select id="filter-priority" [(ngModel)]="filterPriority" (change)="onFilterChange()">
+        <option value="">All Priority</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="view-toggle">
+      <button class="btn-icon" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="List view">
+        <i class="fa-solid fa-list"></i>
+      </button>
+      <button class="btn-icon" [class.active]="viewMode === 'kanban'" (click)="viewMode = 'kanban'" title="Kanban view">
+        <i class="fa-solid fa-table-columns"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="skeleton skeleton-card" style="height:80px; margin-bottom:0.75rem;"></div>
+    <div class="skeleton skeleton-card" style="height:80px; margin-bottom:0.75rem;"></div>
+    <div class="skeleton skeleton-card" style="height:80px;"></div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div *ngIf="!isLoading && viewMode === 'list'">
+    <app-task-list
+      [tasks]="filteredTasks"
+      (taskEdit)="onTaskEdit($event)"
+      (taskToggle)="onTaskToggle($event)"
+      (taskDelete)="onTaskDelete($event)">
+    </app-task-list>
+  </div>
+
+  <!-- KANBAN VIEW -->
+  <div *ngIf="!isLoading && viewMode === 'kanban'" class="kanban-board">
+    <!-- Pending Column -->
+    <div class="kanban-col">
+      <div class="kanban-col-header kanban-pending">
+        <i class="fa-regular fa-clock"></i>
+        <span>Pending</span>
+        <span class="kanban-count">{{ pendingTasksList.length }}</span>
+      </div>
+      <div class="kanban-cards">
+        <div *ngFor="let task of pendingTasksList" class="kanban-card" [class.overdue]="isOverdue(task)">
+          <div class="kanban-card-header">
+            <span class="badge" [ngClass]="'badge-' + task.priority">{{ task.priority }}</span>
+            <div class="kanban-card-actions">
+              <button class="btn-icon" (click)="onTaskEdit(task)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon btn-danger" (click)="onTaskDelete(task._id!)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <h4>{{ task.title }}</h4>
+          <p *ngIf="task.description" class="kanban-desc">{{ task.description }}</p>
+          <div class="kanban-footer">
+            <span class="task-footer"><i class="fa-regular fa-calendar"></i> {{ task.dueDate | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+        <div *ngIf="pendingTasksList.length === 0" class="kanban-empty">No pending tasks</div>
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="kanban-col">
+      <div class="kanban-col-header kanban-inprogress">
+        <i class="fa-solid fa-spinner"></i>
+        <span>In Progress</span>
+        <span class="kanban-count">{{ inProgressTasksList.length }}</span>
+      </div>
+      <div class="kanban-cards">
+        <div *ngFor="let task of inProgressTasksList" class="kanban-card">
+          <div class="kanban-card-header">
+            <span class="badge" [ngClass]="'badge-' + task.priority">{{ task.priority }}</span>
+            <div class="kanban-card-actions">
+              <button class="btn-icon" (click)="onTaskEdit(task)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon btn-danger" (click)="onTaskDelete(task._id!)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <h4>{{ task.title }}</h4>
+          <p *ngIf="task.description" class="kanban-desc">{{ task.description }}</p>
+          <div class="kanban-footer">
+            <span class="task-footer"><i class="fa-regular fa-calendar"></i> {{ task.dueDate | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+        <div *ngIf="inProgressTasksList.length === 0" class="kanban-empty">No tasks in progress</div>
+      </div>
+    </div>
+
+    <!-- Completed Column -->
+    <div class="kanban-col">
+      <div class="kanban-col-header kanban-done">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Completed</span>
+        <span class="kanban-count">{{ completedTasksList.length }}</span>
+      </div>
+      <div class="kanban-cards">
+        <div *ngFor="let task of completedTasksList" class="kanban-card kanban-card-done">
+          <div class="kanban-card-header">
+            <span class="badge badge-completed">done</span>
+            <div class="kanban-card-actions">
+              <button class="btn-icon" (click)="onTaskDelete(task._id!)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <h4 class="strike">{{ task.title }}</h4>
+          <div class="kanban-footer">
+            <span class="task-footer"><i class="fa-regular fa-calendar"></i> {{ task.dueDate | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+        <div *ngIf="completedTasksList.length === 0" class="kanban-empty">No completed tasks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingTask ? 'Edit Task' : 'New Task' }}</h3>
+        <button class="btn-icon" (click)="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <app-task-form
+        [task]="editingTask"
+        (taskSubmit)="onTaskSubmit($event)"
+        (cancel)="closeModal()">
+      </app-task-form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" *ngIf="toastMessage">
+    <div class="toast" [ngClass]="'toast-' + toastType">
+      <i class="fa-solid" [ngClass]="toastType === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+      {{ toastMessage }}
+    </div>
+  </div>
+
+</div>

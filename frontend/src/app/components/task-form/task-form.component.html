@@ -1,0 +1,73 @@
+<div class="task-form-card saas-card fade-in">
+  <h3>{{ isEditMode ? 'Edit Task' : 'Create New Task' }}</h3>
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="form-group">
+      <label for="title">Task Title <span class="required-star">*</span></label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        placeholder="What needs to be done?"
+        aria-label="Task title"
+        maxlength="120"
+        [class.invalid]="taskForm.get('title')?.invalid && taskForm.get('title')?.touched"
+      />
+      <div class="field-footer">
+        <small class="error-text" *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
+          Title is required
+        </small>
+        <span class="char-count">{{ taskForm.get('title')?.value?.length || 0 }}/120</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="dueDate">Due Date <span class="required-star">*</span></label>
+        <input
+          type="date"
+          id="dueDate"
+          formControlName="dueDate"
+          aria-label="Due date"
+          [min]="minDate"
+          [class.invalid]="taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched"
+        />
+        <small class="error-text" *ngIf="taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched">
+          Due date is required
+        </small>
+      </div>
+
+      <div class="form-group flex-1">
+        <label for="priority">Priority</label>
+        <select id="priority" formControlName="priority" aria-label="Task priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description <span class="optional-label">(optional)</span></label>
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="3"
+        placeholder="Add more details about this task..."
+        aria-label="Task description"
+        maxlength="500"
+      ></textarea>
+      <span class="char-count">{{ taskForm.get('description')?.value?.length || 0 }}/500</span>
+    </div>
+
+    <div class="form-actions modal-actions">
+      <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save Changes' : 'Add Task' }}</span>
+        <span *ngIf="isSubmitting" class="spinner"></span>
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,42 @@
+<header class="header">
+  <!-- Search Bar -->
+  <div class="header-left">
+    <div class="search-bar" [class.has-value]="searchTerm">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        id="header-search"
+        type="text"
+        placeholder="Search tasks..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch(searchTerm)"
+        (keydown.escape)="clearSearch()"
+        autocomplete="off"
+      />
+      <button *ngIf="searchTerm" class="search-clear-btn" (click)="clearSearch()" title="Clear">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <span *ngIf="!searchTerm" class="search-shortcut">⌘K</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <!-- Notifications -->
+    <div class="header-action">
+      <button class="btn-icon" id="notifications-btn" type="button">
+        <i class="fa-regular fa-bell"></i>
+        <span class="notification-dot"></span>
+      </button>
+    </div>
+
+    <!-- Profile -->
+    <div class="header-profile" *ngIf="currentUser">
+      <div class="avatar">
+        {{ currentUser.email.charAt(0).toUpperCase() }}
+      </div>
+      <div class="profile-info">
+        <span class="profile-email">{{ currentUser.email }}</span>
+        <span class="profile-role">Student</span>
+      </div>
+    </div>
+  </div>
+</header>

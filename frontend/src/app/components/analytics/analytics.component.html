@@ -1,0 +1,180 @@
+<div class="analytics-page fade-in">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <h2>Analytics & Insights</h2>
+      <span class="page-subtitle">Your performance at a glance</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="skeleton skeleton-card" style="height:120px; margin-bottom:1rem;"></div>
+    <div class="skeleton skeleton-card" style="height:200px;"></div>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-primary">
+        <div class="kpi-icon"><i class="fa-solid fa-layer-group"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ totalTasks }}</span>
+          <span class="kpi-label">Total Tasks</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-success">
+        <div class="kpi-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ completedTasks }}</span>
+          <span class="kpi-label">Completed</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-warning">
+        <div class="kpi-icon"><i class="fa-regular fa-clock"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ pendingTasks }}</span>
+          <span class="kpi-label">Pending</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-danger">
+        <div class="kpi-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ overdueTasks }}</span>
+          <span class="kpi-label">Overdue</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+
+      <!-- Completion Rate -->
+      <div class="saas-card completion-card">
+        <h3 class="card-title">Completion Rate</h3>
+        <div class="donut-wrapper">
+          <svg viewBox="0 0 120 120" class="donut-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg-surface-elevated)" stroke-width="12"/>
+            <circle cx="60" cy="60" r="50" fill="none"
+              stroke="var(--success)"
+              stroke-width="12"
+              stroke-linecap="round"
+            [attr.stroke-dasharray]="(completionRate / 100) * 314.16 + ' 314.16'"
+              transform="rotate(-90 60 60)"
+              style="transition: stroke-dasharray 1s ease;"/>
+          </svg>
+          <div class="donut-center">
+            <span class="donut-pct">{{ completionRate }}%</span>
+            <span class="donut-sub">complete</span>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--success)"></span>
+            <span>Completed ({{ completedTasks }})</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--warning)"></span>
+            <span>Remaining ({{ totalTasks - completedTasks }})</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Breakdown Bar Chart -->
+      <div class="saas-card bar-chart-card">
+        <h3 class="card-title">Status Breakdown</h3>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">Completed</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-success" [style.width]="getBarWidth(completedTasks)"></div>
+            </div>
+            <span class="bar-count">{{ completedTasks }}</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Pending</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-warning" [style.width]="getBarWidth(pendingTasks)"></div>
+            </div>
+            <span class="bar-count">{{ pendingTasks }}</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">In Progress</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-primary" [style.width]="getBarWidth(inProgressTasks)"></div>
+            </div>
+            <span class="bar-count">{{ inProgressTasks }}</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Overdue</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-danger" [style.width]="getBarWidth(overdueTasks)"></div>
+            </div>
+            <span class="bar-count">{{ overdueTasks }}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3 class="card-title" style="margin-top:1rem;">Priority Distribution</h3>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">High</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-danger" [style.width]="priorityBarWidth(highPriority)"></div>
+            </div>
+            <span class="bar-count">{{ highPriority }}</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Medium</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-warning" [style.width]="priorityBarWidth(mediumPriority)"></div>
+            </div>
+            <span class="bar-count">{{ mediumPriority }}</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Low</span>
+            <div class="bar-track">
+              <div class="bar-fill bar-muted" [style.width]="priorityBarWidth(lowPriority)"></div>
+            </div>
+            <span class="bar-count">{{ lowPriority }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Upcoming Tasks -->
+    <div class="saas-card upcoming-card">
+      <h3 class="card-title">
+        <i class="fa-regular fa-calendar-check"></i>
+        Due in the Next 7 Days
+        <span class="upcoming-count">{{ upcomingTasks.length }}</span>
+      </h3>
+
+      <div *ngIf="upcomingTasks.length === 0" class="empty-state" style="padding:2rem;">
+        <i class="fa-regular fa-face-smile empty-icon"></i>
+        <h3>All clear!</h3>
+        <p>No tasks due in the next 7 days.</p>
+      </div>
+
+      <div class="upcoming-list" *ngIf="upcomingTasks.length > 0">
+        <div *ngFor="let task of upcomingTasks" class="upcoming-row">
+          <span class="badge" [ngClass]="'badge-' + task.priority">{{ task.priority }}</span>
+          <span class="upcoming-title">{{ task.title }}</span>
+          <span class="upcoming-date">{{ task.dueDate | date:'MMM d' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state if no tasks at all -->
+    <div *ngIf="totalTasks === 0" class="empty-state" style="margin-top:2rem;">
+      <i class="fa-solid fa-chart-pie empty-icon"></i>
+      <h3>No data yet</h3>
+      <p>Create some tasks to see your analytics here.</p>
+    </div>
+
+  </ng-container>
+</div>

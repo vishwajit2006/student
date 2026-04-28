@@ -1,0 +1,41 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>STM</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-title">Menu</span>
+      <a routerLink="/app/dashboard" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-border-all"></i>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/app/tasks" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Tasks</span>
+      </a>
+      <a routerLink="/app/analytics" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-title">Settings</span>
+      <a routerLink="/app/profile" routerLinkActive="active" class="nav-item">
+        <i class="fa-regular fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="nav-item logout-btn" (click)="logout()">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>
